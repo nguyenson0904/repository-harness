@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repository Harness Structure</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --ink: #172026;
+      --muted: #5a6872;
+      --line: #cfd7de;
+      --panel: #ffffff;
+      --blue: #2f6fed;
+      --green: #16845f;
+      --amber: #a86800;
+      --red: #b42318;
+      --violet: #6b4eff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    header {
+      padding: 28px 32px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 980px;
+    }
+    main {
+      padding: 24px 32px 36px;
+      max-width: 1360px;
+      margin: 0 auto;
+    }
+    section {
+      margin: 0 0 28px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+      letter-spacing: 0;
+    }
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+    .grid.columns-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .grid.columns-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .grid.columns-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      min-height: 116px;
+    }
+    .card.wide {
+      grid-column: 1 / -1;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+    .card p,
+    .card li {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .card p {
+      margin: 0;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--blue);
+      margin-bottom: 8px;
+    }
+    .tag.green { background: var(--green); }
+    .tag.amber { background: var(--amber); }
+    .tag.red { background: var(--red); }
+    .tag.violet { background: var(--violet); }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+    .step {
+      position: relative;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 104px;
+    }
+    .step:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -10px;
+      width: 10px;
+      border-top: 2px solid var(--line);
+    }
+    .step strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .step span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .map {
+      display: grid;
+      grid-template-columns: 260px 1fr 280px;
+      gap: 14px;
+      align-items: start;
+    }
+    .tree {
+      background: #101820;
+      color: #e8eef3;
+      border-radius: 8px;
+      padding: 16px;
+      font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      white-space: pre-wrap;
+      min-height: 410px;
+    }
+    .lane {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .mini {
+      border-left: 4px solid var(--blue);
+    }
+    .mini.green { border-left-color: var(--green); }
+    .mini.amber { border-left-color: var(--amber); }
+    .mini.red { border-left-color: var(--red); }
+    .status {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .ok {
+      color: var(--green);
+      font-weight: 700;
+    }
+    .warn {
+      color: var(--amber);
+      font-weight: 700;
+    }
+    .bad {
+      color: var(--red);
+      font-weight: 700;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      background: #eef2f5;
+      border: 1px solid #d9e1e7;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+    pre {
+      margin: 8px 0 0;
+      overflow-x: auto;
+      background: #101820;
+      color: #e8eef3;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    pre code {
+      display: block;
+      background: transparent;
+      border: 0;
+      color: inherit;
+      padding: 0;
+      white-space: pre;
+    }
+    @media (max-width: 1080px) {
+      .grid.columns-4,
+      .grid.columns-2,
+      .grid.columns-3,
+      .status,
+      .map,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+      .step:not(:last-child)::after {
+        display: none;
+      }
+      main,
+      header {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Repository Harness for Coding Agents</h1>
+    <p class="subtitle">Minh họa cách repo này biến ý định của human thành story, proof, trace, audit và improvement loop cho coding agent.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Operating Flow</h2>
+      <div class="flow" aria-label="Harness operating flow">
+        <div class="step">
+          <strong>Human Intent</strong>
+          <span>Prompt, spec, change request, maintenance request.</span>
+        </div>
+        <div class="step">
+          <strong>Feature Intake</strong>
+          <span>Phân loại input type và lane tiny / normal / high-risk.</span>
+        </div>
+        <div class="step">
+          <strong>Context Rules</strong>
+          <span>Đọc đúng file theo phase, lane và retrieval trigger.</span>
+        </div>
+        <div class="step">
+          <strong>Story Packet</strong>
+          <span>Mô tả contract, design, validation, risk và evidence.</span>
+        </div>
+        <div class="step">
+          <strong>Agent Work</strong>
+          <span>Implement, update docs, run proof, giữ đúng boundaries.</span>
+        </div>
+        <div class="step">
+          <strong>Trace + Matrix</strong>
+          <span>Ghi actions, files, outcome, friction và proof status.</span>
+        </div>
+        <div class="step">
+          <strong>Audit + Propose</strong>
+          <span>Tìm drift, entropy, repeated friction và tạo backlog.</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Mermaid Diagrams</h2>
+      <div class="grid columns-2">
+        <div class="card">
+          <h3>Vòng Đời Công Việc</h3>
+          <pre><code>flowchart LR
+    A[Human intent hoặc spec] --&gt; B[Feature intake]
+    B --&gt; C{Risk lane}
+    C --&gt;|Tiny| D[Patch trực tiếp]
+    C --&gt;|Normal| E[Story packet]
+    C --&gt;|High-risk| F[High-risk story folder + decision khi cần]
+    D --&gt; G[Agent work loop]
+    E --&gt; G
+    F --&gt; G
+    G --&gt; H[Product delta]
+    G --&gt; I[Harness delta]
+    H --&gt; J[Validation proof]
+    I --&gt; K[Docs / templates / backlog / decisions]
+    J --&gt; L[Trace]
+    K --&gt; L
+    L --&gt; M[Audit]
+    M --&gt; N[Improvement proposal]
+    N --&gt; B</code></pre>
+        </div>
+        <div class="card">
+          <h3>Cấu Trúc Repo</h3>
+          <pre><code>flowchart TB
+    Root[repository-harness]
+    Root --&gt; Agents[AGENTS.md / CLAUDE.md]
+    Root --&gt; Docs[docs/]
+    Root --&gt; Scripts[scripts/]
+    Root --&gt; Crates[crates/harness-cli/]
+    Root --&gt; CI[.github/workflows/]
+    Docs --&gt; Harness[HARNESS.md]
+    Docs --&gt; Intake[FEATURE_INTAKE.md]
+    Docs --&gt; Context[CONTEXT_RULES.md]
+    Docs --&gt; Matrix[TEST_MATRIX.md]
+    Scripts --&gt; Schema[schema/*.sql]
+    Crates --&gt; CLI[harness-cli source]
+    Schema --&gt; DB[(harness.db)]
+    CLI --&gt; DB</code></pre>
+        </div>
+        <div class="card wide">
+          <h3>Agent Đọc Và Cập Nhật Markdown</h3>
+          <pre><code>flowchart TD
+    Start[User prompt] --&gt; A[Đọc AGENTS.md]
+    A --&gt; B[Đọc README.md]
+    A --&gt; C[Đọc docs/HARNESS.md]
+    A --&gt; D[Đọc docs/FEATURE_INTAKE.md]
+    A --&gt; E[Đọc docs/CONTEXT_RULES.md]
+    A --&gt; F[Đọc docs/TOOL_REGISTRY.md]
+    A --&gt; G[Chạy hoặc cố chạy harness-cli query matrix]
+    D --&gt; H{Phân loại lane}
+    H --&gt;|Tiny| I[Đọc file sẽ sửa + docs tối thiểu]
+    H --&gt;|Normal| J[Đọc story template, TEST_MATRIX, product/story liên quan]
+    H --&gt;|High-risk| K[Đọc ARCHITECTURE, decisions, high-risk templates]
+    E --&gt; L{Retrieval trigger?}
+    L --&gt;|Schema/CLI| M[Đọc schema, CLI code, decision 0004/0005]
+    L --&gt;|Product behavior| N[Đọc docs/product và docs/stories]
+    L --&gt;|Policy/validation| O[Đọc HARNESS, FEATURE_INTAKE, ARCHITECTURE, decisions]
+    I --&gt; Q[Implement]
+    J --&gt; Q
+    K --&gt; Q
+    M --&gt; Q
+    N --&gt; Q
+    O --&gt; Q
+    Q --&gt; R{Sau implement cập nhật gì?}
+    R --&gt; S[Product files / docs/product nếu contract đổi]
+    R --&gt; T[docs/stories hoặc high-risk story folder]
+    R --&gt; U[TEST_MATRIX hoặc harness-cli story update proof]
+    R --&gt; V[docs/decisions nếu có quyết định bền vững]
+    R --&gt; W[HARNESS_BACKLOG hoặc harness-cli backlog add nếu có friction]
+    R --&gt; X[harness-cli trace actions/read/changed/outcome/friction]
+    X --&gt; Y[Final response]</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Repository Map</h2>
+      <div class="map">
+        <div class="tree">root
+|-- AGENTS.md
+|-- CLAUDE.md
+|-- README.md
+|-- PHASE2..PHASE5
+|-- Cargo.toml
+|-- crates/
+|   `-- harness-cli/
+|       |-- domain.rs
+|       |-- application.rs
+|       |-- infrastructure.rs
+|       |-- interface.rs
+|       `-- main.rs
+|-- docs/
+|   |-- HARNESS.md
+|   |-- FEATURE_INTAKE.md
+|   |-- CONTEXT_RULES.md
+|   |-- ARCHITECTURE.md
+|   |-- TOOL_REGISTRY.md
+|   |-- TRACE_SPEC.md
+|   |-- TEST_MATRIX.md
+|   |-- decisions/
+|   |-- stories/
+|   |-- product/
+|   `-- templates/
+|-- scripts/
+|   |-- schema/
+|   |-- install-harness.ps1
+|   |-- install-harness.sh
+|   `-- build-harness-cli-release.sh
+`-- .github/
+    `-- workflows/</div>
+        <div class="lane">
+          <div class="card mini">
+            <span class="tag">Entrypoint</span>
+            <h3>AGENTS.md / CLAUDE.md</h3>
+            <p>Shim ngắn để agent biết phải đọc README, Harness docs, context rules, tool registry và matrix trước khi làm việc.</p>
+          </div>
+          <div class="card mini green">
+            <span class="tag green">Policy Docs</span>
+            <h3>docs/HARNESS.md + FEATURE_INTAKE.md</h3>
+            <p>Định nghĩa task loop, input types, risk lanes, done definition, growth rule và khi nào cần story/decision.</p>
+          </div>
+          <div class="card mini amber">
+            <span class="tag amber">Durable Layer</span>
+            <h3>SQLite + Rust CLI</h3>
+            <p><code>harness.db</code> lưu intakes, stories, decisions, backlog, traces, tools và interventions. Schema nằm trong <code>scripts/schema</code>.</p>
+          </div>
+          <div class="card mini red">
+            <span class="tag red">Runtime Gap</span>
+            <h3>Missing Binary</h3>
+            <p>Workspace hiện tại không có <code>scripts/bin/harness-cli.exe</code> và không có <code>cargo</code>, nên CLI không chạy được trong scan này.</p>
+          </div>
+        </div>
+        <div class="lane">
+          <div class="card">
+            <h3>Lane Model</h3>
+            <ul>
+              <li><strong>Tiny:</strong> docs/copy/narrow edits.</li>
+              <li><strong>Normal:</strong> bounded story-sized work.</li>
+              <li><strong>High-risk:</strong> auth, data, contracts, security, providers.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Proof Columns</h3>
+            <ul>
+              <li>Unit</li>
+              <li>Integration</li>
+              <li>E2E</li>
+              <li>Platform</li>
+              <li>Evidence</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Evolution Loop</h3>
+            <p>Trace friction + intervention + audit drift -> <code>harness-cli propose</code> -> backlog item -> implementation -> close với actual outcome.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Core Components</h2>
+      <div class="grid columns-4">
+        <div class="card">
+          <span class="tag">Task Spec</span>
+          <h3>Intake + Stories</h3>
+          <p>Biến prompt thành work item có lane, affected docs, story id, validation và acceptance criteria.</p>
+        </div>
+        <div class="card">
+          <span class="tag green">Context</span>
+          <h3>Context Rules</h3>
+          <p>Hướng dẫn đọc đúng nguồn theo phase, tránh nhầm giữa docs, decisions, product truth và code.</p>
+        </div>
+        <div class="card">
+          <span class="tag amber">Verification</span>
+          <h3>Matrix + Verify</h3>
+          <p>Story có proof flags và optional verify command; <code>verify-all</code> gom bằng chứng trước close/merge.</p>
+        </div>
+        <div class="card">
+          <span class="tag violet">Memory</span>
+          <h3>Decisions + Trace</h3>
+          <p>ADR, backlog và traces giữ lại lý do, kết quả, friction và intervention cho lần chạy sau.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>SQLite Durable Layer</h2>
+      <div class="grid columns-3">
+        <div class="card">
+          <h3>Migration 001</h3>
+          <p>Creates <code>intake</code>, <code>story</code>, <code>decision</code>, <code>backlog</code>, <code>trace</code> plus <code>schema_version</code>.</p>
+        </div>
+        <div class="card">
+          <h3>Migration 002-003</h3>
+          <p>Adds story verification fields and registered <code>tool</code> table.</p>
+        </div>
+        <div class="card">
+          <h3>Migration 004-005</h3>
+          <p>Adds interventions and kind/capability/status scanning for inbound tools.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Current Workspace Status</h2>
+      <div class="status">
+        <div class="card">
+          <h3>Present</h3>
+          <ul>
+            <li><span class="ok">OK</span> Harness docs and templates.</li>
+            <li><span class="ok">OK</span> Rust CLI source.</li>
+            <li><span class="ok">OK</span> SQLite migrations.</li>
+            <li><span class="ok">OK</span> Installer and release workflows.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Missing For Runtime</h3>
+          <ul>
+            <li><span class="bad">Missing</span> <code>scripts/bin/harness-cli.exe</code>.</li>
+            <li><span class="bad">Missing</span> <code>cargo</code> on PATH.</li>
+            <li><span class="warn">Not checked</span> CLI matrix/intake/trace runtime.</li>
+            <li><span class="warn">Placeholder</span> Product contract and test matrix.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
